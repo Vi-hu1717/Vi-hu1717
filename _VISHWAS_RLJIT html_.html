@@ -1,0 +1,355 @@
+<VISHWAS_RLJIT html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Advanced Career Navigator Tool</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background-color: #f1f2f6;
+      margin: 0;
+      padding: 2rem;
+      color: #2d3436;
+    }
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background-color: #fff;
+      padding: 2rem;
+      border-radius: 1rem;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    }
+    .section {
+      margin-bottom: 2.5rem;
+    }
+    h1, h2, h3, h4 {
+      color: #2d3436;
+    }
+    .login-form input {
+      padding: 0.8rem;
+      margin: 0.5rem;
+      width: 200px;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+    }
+    .login-form button {
+      padding: 0.7rem 1.5rem;
+      background-color: #00cec9;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      margin-left: 0.5rem;
+      cursor: pointer;
+    }
+    .career-cards {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .career-card {
+      padding: 1rem;
+      border-radius: 0.7rem;
+      background-color: #ffeaa7;
+      cursor: pointer;
+      transition: 0.3s ease;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+    .career-card:hover, .career-card.active {
+      background-color: #fdcb6e;
+      transform: scale(1.05);
+    }
+    .output {
+      margin-top: 1rem;
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+    .timeline {
+      display: flex;
+      overflow-x: auto;
+      padding: 1rem 0;
+    }
+    .timeline-step {
+      flex: 0 0 auto;
+      background: #74b9ff;
+      color: white;
+      padding: 1rem;
+      margin-right: 1rem;
+      border-radius: 0.8rem;
+      text-align: center;
+      min-width: 150px;
+    }
+    .timeline-step.active {
+      background: #0984e3;
+      font-weight: bold;
+    }
+    .daily-tracking button {
+      margin-top: 1rem;
+      padding: 0.7rem 1.2rem;
+      background: #00b894;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    .resource-preview .card {
+      background: #dfe6e9;
+      padding: 0.7rem 1rem;
+      border-radius: 0.6rem;
+      margin: 0.5rem 0;
+    }
+    .chart-container, .custom-request {
+      margin-top: 2rem;
+    }
+    .custom-request input, .custom-request textarea {
+      width: 100%;
+      margin: 0.5rem 0;
+      padding: 0.7rem;
+      border-radius: 0.5rem;
+      border: 1px solid #ccc;
+    }
+    .custom-request button {
+      padding: 0.6rem 1.2rem;
+      background: #6c5ce7;
+      color: white;
+      border: none;
+      border-radius: 0.5rem;
+      cursor: pointer;
+    }
+    iframe {
+      margin-top: 10px;
+      width: 100%;
+      height: 300px;
+      border: none;
+      border-radius: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Welcome to the Advanced Career Navigator Tool</h1>
+
+    <div class="section login-form" id="auth-section">
+      <h2>Login / Signup</h2>
+      <input type="text" id="username" placeholder="Username" required>
+      <input type="password" id="password" placeholder="Password" required>
+      <button onclick="loginUser()">Login</button>
+      <button onclick="signupUser()">Signup</button>
+    </div>
+
+    <div class="section" id="main-content" style="display: none;">
+      <div class="section">
+        <h2>Choose Your Career Domain</h2>
+        <div class="career-cards">
+          <div class="career-card">Web Developer</div>
+          <div class="career-card">Data Scientist</div>
+          <div class="career-card">App Developer</div>
+          <div class="career-card">Data Engineer</div>
+          <div class="career-card">Graphic Designer</div>
+          <div class="career-card">AI Engineer</div>
+          <div class="career-card">Cybersecurity Analyst</div>
+          <div class="career-card">Cloud Architect</div>
+        </div>
+      </div>
+
+      <div class="section output">
+        <h3>Visual Roadmap (GPS-style Timeline)</h3>
+        <div class="timeline"></div>
+      </div>
+
+      <div class="section daily-tracking">
+        <h3>Daily Roadmap Tracker</h3>
+        <div id="daily-step" class="timeline-step active">Today's Task: (select a career)</div>
+        <button onclick="completeToday()">Mark as Complete</button>
+      </div>
+
+      <div class="section resource-preview">
+        <h3>Recommended Resources</h3>
+        <div id="resource-links"></div>
+        <div id="youtube-preview"></div>
+      </div>
+
+      <div class="section custom-request">
+        <h3>Request a Custom Course or Domain</h3>
+        <input type="text" placeholder="Enter custom course or domain">
+        <textarea placeholder="Describe what you’re looking for"></textarea>
+        <button>Submit Request</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let loggedInUser = null;
+
+    const roadmapSteps = {
+      "Web Developer": ["HTML & CSS", "JavaScript Basics", "Frontend Frameworks", "Backend with Node.js", "Deploy Your Website"],
+      "Data Scientist": ["Python Basics", "Data Analysis with Pandas", "Statistics & Math", "ML with Scikit-Learn", "Deploy Models"],
+      "App Developer": ["Learn Kotlin/Swift", "UI/UX Design", "Database Integration", "API Communication", "Play Store / App Store Launch"],
+      "Data Engineer": ["ETL Basics", "SQL Mastery", "Big Data Tools", "Data Pipelines", "Cloud Storage"],
+      "Graphic Designer": ["Design Principles", "Photoshop & Illustrator", "Typography", "Branding Projects", "Portfolio Creation"],
+      "AI Engineer": ["Python & Math", "Neural Networks", "TensorFlow/PyTorch", "Train Models", "Optimize & Deploy"],
+      "Cybersecurity Analyst": ["Networking Basics", "Security Tools", "Ethical Hacking", "Risk Management", "Certifications"],
+      "Cloud Architect": ["Cloud Fundamentals", "AWS/GCP/Azure", "Networking & Storage", "Deploy Scalable Apps", "Security & Compliance"]
+    };
+
+    const resources = {
+      "Web Developer": {
+        links: [
+          "https://www.freecodecamp.org/",
+          "https://developer.mozilla.org/en-US/",
+          "https://www.theodinproject.com/"
+        ],
+        youtube: "https://www.youtube.com/embed/pDyUV5z_LS0" // freeCodeCamp Web Dev
+      },
+      "Data Scientist": {
+        links: [
+          "https://www.coursera.org/specializations/data-science-python",
+          "https://www.kaggle.com/",
+          "https://www.edx.org/professional-certificate/harvardx-data-science"
+        ],
+        youtube: "https://www.youtube.com/embed/xC-c7E5PK0Y" // Simplilearn Python
+      },
+      "App Developer": {
+        links: [
+          "https://developer.android.com/courses",
+          "https://developer.apple.com/learn/curriculum/",
+          "https://www.udacity.com/course/ios-developer-nanodegree--nd003"
+        ],
+        youtube: "https://www.youtube.com/embed/fis26HvvDII"
+      },
+      "Data Engineer": {
+        links: [
+          "https://www.coursera.org/specializations/gcp-data-engineering",
+          "https://dataengineering.wiki/",
+          "https://learn.microsoft.com/en-us/training/paths/data-engineer/"
+        ],
+        youtube: "https://www.youtube.com/embed/4D5dH_P2SDE"
+      },
+      "Graphic Designer": {
+        links: [
+          "https://www.canva.com/learn/",
+          "https://helpx.adobe.com/",
+          "https://www.skillshare.com/en/browse/graphic-design"
+        ],
+        youtube: "https://www.youtube.com/embed/Oy3eJ7fRmfk"
+      },
+      "AI Engineer": {
+        links: [
+          "https://www.deeplearning.ai/",
+          "https://www.udacity.com/course/ai-programming-python-nanodegree--nd089",
+          "https://www.tensorflow.org/learn"
+        ],
+        youtube: "https://www.youtube.com/embed/aircAruvnKk"
+      },
+      "Cybersecurity Analyst": {
+        links: [
+          "https://www.coursera.org/professional-certificates/ibm-cybersecurity-analyst",
+          "https://www.cybrary.it/",
+          "https://www.sans.org/"
+        ],
+        youtube: "https://www.youtube.com/embed/inWWhr5tnEA"
+      },
+      "Cloud Architect": {
+        links: [
+          "https://www.aws.training/",
+          "https://cloud.google.com/training",
+          "https://learn.microsoft.com/en-us/certifications/azure-solutions-architect/"
+        ],
+        youtube: "https://www.youtube.com/embed/2LaAJq1lB1Q"
+      }
+    };
+
+    function loginUser() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      const updatedUsers = JSON.parse(localStorage.getItem('users') || '{}');
+
+      if (updatedUsers[user] && updatedUsers[user] === pass) {
+        loggedInUser = user;
+        document.getElementById('auth-section').style.display = 'none';
+        document.getElementById('main-content').style.display = 'block';
+        alert('Welcome back, ' + user + '!');
+      } else {
+        alert('Invalid login credentials. Please try again.');
+      }
+    }
+
+    function signupUser() {
+      const user = document.getElementById('username').value;
+      const pass = document.getElementById('password').value;
+      if (user && pass) {
+        let users = JSON.parse(localStorage.getItem('users') || '{}');
+        users[user] = pass;
+        localStorage.setItem('users', JSON.stringify(users));
+        loginUser();
+      } else {
+        alert('Please fill in both username and password to sign up.');
+      }
+    }
+
+    function saveUserProgress(career, step) {
+      if (!loggedInUser) return;
+      const key = `user_progress_${loggedInUser}_${career}`;
+      localStorage.setItem(key, step);
+    }
+
+    function getUserProgress(career) {
+      if (!loggedInUser) return 1;
+      const key = `user_progress_${loggedInUser}_${career}`;
+      return parseInt(localStorage.getItem(key) || '1');
+    }
+
+    function renderTimeline(career) {
+      const steps = roadmapSteps[career];
+      const timelineEl = document.querySelector(".timeline");
+      timelineEl.innerHTML = '';
+
+      const current = getUserProgress(career);
+
+      steps.forEach((step, index) => {
+        const stepDiv = document.createElement('div');
+        stepDiv.className = 'timeline-step' + (index + 1 === current ? ' active' : '');
+        stepDiv.textContent = step;
+        timelineEl.appendChild(stepDiv);
+      });
+
+      const dailyStepEl = document.getElementById('daily-step');
+      dailyStepEl.textContent = `Today's Task: ${steps[current - 1]}`;
+
+      // Load recommended resources
+      const resourceEl = document.getElementById("resource-links");
+      const youtubeEl = document.getElementById("youtube-preview");
+      const res = resources[career];
+
+      resourceEl.innerHTML = res.links.map(link => `<div class="card"><a href="${link}" target="_blank">${link}</a></div>`).join("");
+      youtubeEl.innerHTML = `<h4>📺 YouTube Preview</h4><iframe src="${res.youtube}" allowfullscreen></iframe>`;
+    }
+
+    function completeToday() {
+      const selectedCard = document.querySelector('.career-card.active');
+      if (!selectedCard) return alert("Please select a career first!");
+
+      const career = selectedCard.textContent;
+      let current = getUserProgress(career);
+      const total = roadmapSteps[career].length;
+
+      if (current < total) {
+        current++;
+        saveUserProgress(career, current);
+        renderTimeline(career);
+      } else {
+        alert("🎉 You've completed all steps in your roadmap!");
+      }
+    }
+
+    document.querySelectorAll('.career-card').forEach(card => {
+      card.addEventListener('click', () => {
+        document.querySelectorAll('.career-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        const career = card.textContent;
+        renderTimeline(career);
+      });
+    });
+  </script>
+</body>
+</html>
